@@ -83,6 +83,7 @@ func main() {
 	}
 
 	title := "ec2(Running)インスタンス数:" + strconv.Itoa(instanceNum)
+	fmt.Println("Send message. " + title + "\n" + message);
 	err := bot.Message(title, message)
 	if err != nil {
 		panic(err.Error())
