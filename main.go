@@ -38,7 +38,7 @@ func main() {
 	flag.StringVar(&slackUrl, "slackUrl", "blank", "config file path")
 	flag.StringVar(&region, "region", "ap-northeast-1a", "ec2 region")
 	flag.StringVar(&slackChannel, "slackChannel", "#bot_test", "slack channel")
-	flag.StringVar(&slackBotName, "slackBotName", "#bot_test", "slack bot name")
+	flag.StringVar(&slackBotName, "slackBotName", "ec2-reminder", "slack bot name")
 	flag.StringVar(&slackBotIcon, "slackBotIcon", ":ghost:", "slack bot name")
 
 
