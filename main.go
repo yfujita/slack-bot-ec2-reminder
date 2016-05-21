@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"flag"
 )
 
 type Tag struct {
@@ -16,6 +17,7 @@ type Tag struct {
 type Instance struct {
 	InstanceId		string
 	InstanceType	string
+	LaunchTime		string
 	Tags			[]Tag
 }
 
@@ -28,9 +30,18 @@ type Resp struct {
 }
 
 func main() {
-	reservations := getReservations()
+	var slackUrl string
+	var region string
+	flag.StringVar(&slackUrl, "slackUrl", "blank", "config file path")
+	flag.StringVar(&region, "region", "ap-northeast-1a", "ec2 region")
+	flag.Parse()
+	if slackUrl == "blank" {
+		panic("Invalid url parameter")
+	}
 
-	bot := slackutil.NewBot("{url}", "#bot_test", "ec2-reminder", ":ghost:")
+	reservations := getReservations(region)
+
+	bot := slackutil.NewBot(slackUrl, "#bot_test", "ec2-reminder", ":ghost:")
 
 	reservationNum := len(reservations)
 
@@ -53,6 +64,7 @@ func main() {
 				message += "{key:" + tag.Key + ", value:" + tag.Value + "}"
 			}
 			message += "]"
+			message += " launchTime:" + instance.LaunchTime
 			message += "\n"
 			instanceNum++
 		}
@@ -63,12 +75,14 @@ func main() {
 	}
 
 	title := "ec2(Running)インスタンス数:" + strconv.Itoa(instanceNum)
-	bot.Message(title, message)
+	err := bot.Message(title, message)
+	if err != nil {
+		panic(err.Error())
+	}
 }
 
-func getReservations() []Reservation {
-	region := "ap-northeast-1a"
-	jsonStr := executeCmd("aws", "ec2", "describe-instances", "--filters", "Name=instance-state-code,Values=16", "Name=availability-zone,Values=" + region)
+func getReservations(region string) []Reservation {
+	jsonStr := executeCmd("aws", "ec2", "describe-instances", "--output", "json", "--filters", "Name=instance-state-code,Values=16", "Name=availability-zone,Values=" + region)
 	fmt.Println(jsonStr)
 	var resp Resp
 	json.Unmarshal([]byte(jsonStr), &resp)
