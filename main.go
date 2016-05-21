@@ -31,9 +31,17 @@ type Resp struct {
 
 func main() {
 	var slackUrl string
+	var slackChannel string
+	var slackBotName string
+	var slackBotIcon string
 	var region string
 	flag.StringVar(&slackUrl, "slackUrl", "blank", "config file path")
 	flag.StringVar(&region, "region", "ap-northeast-1a", "ec2 region")
+	flag.StringVar(&slackChannel, "slackChannel", "#bot_test", "slack channel")
+	flag.StringVar(&slackBotName, "slackBotName", "#bot_test", "slack bot name")
+	flag.StringVar(&slackBotIcon, "slackBotIcon", ":ghost:", "slack bot name")
+
+
 	flag.Parse()
 	if slackUrl == "blank" {
 		panic("Invalid url parameter")
@@ -41,7 +49,7 @@ func main() {
 
 	reservations := getReservations(region)
 
-	bot := slackutil.NewBot(slackUrl, "#bot_test", "ec2-reminder", ":ghost:")
+	bot := slackutil.NewBot(slackUrl, slackChannel, slackBotName, slackBotIcon)
 
 	reservationNum := len(reservations)
 
