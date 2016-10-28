@@ -1,28 +1,28 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
+	"fmt"
 	"github.com/yfujita/slackutil"
 	"os/exec"
-	"encoding/json"
-	"fmt"
 	"strconv"
-	"flag"
 )
 
 type Tag struct {
-	Key		string
-	Value	string
+	Key   string
+	Value string
 }
 
 type Instance struct {
-	InstanceId		string
-	InstanceType	string
-	LaunchTime		string
-	Tags			[]Tag
+	InstanceId   string
+	InstanceType string
+	LaunchTime   string
+	Tags         []Tag
 }
 
 type Reservation struct {
-	Instances		[]Instance
+	Instances []Instance
 }
 
 type Resp struct {
@@ -40,7 +40,6 @@ func main() {
 	flag.StringVar(&slackChannel, "slackChannel", "#bot_test", "slack channel")
 	flag.StringVar(&slackBotName, "slackBotName", "ec2-reminder", "slack bot name")
 	flag.StringVar(&slackBotIcon, "slackBotIcon", ":ghost:", "slack bot name")
-
 
 	flag.Parse()
 	if slackUrl == "blank" {
@@ -83,7 +82,7 @@ func main() {
 	}
 
 	title := "ec2(Running)インスタンス数:" + strconv.Itoa(instanceNum)
-	fmt.Println("Send message. " + title + "\n" + message);
+	fmt.Println("Send message. " + title + "\n" + message)
 	err := bot.Message(title, message)
 	if err != nil {
 		panic(err.Error())
@@ -91,7 +90,7 @@ func main() {
 }
 
 func getReservations(region string) []Reservation {
-	jsonStr := executeCmd("aws", "ec2", "describe-instances", "--output", "json", "--filters", "Name=instance-state-code,Values=16", "Name=availability-zone,Values=" + region)
+	jsonStr := executeCmd("aws", "ec2", "describe-instances", "--output", "json", "--filters", "Name=instance-state-code,Values=16", "Name=availability-zone,Values="+region)
 	fmt.Println(jsonStr)
 	var resp Resp
 	json.Unmarshal([]byte(jsonStr), &resp)
